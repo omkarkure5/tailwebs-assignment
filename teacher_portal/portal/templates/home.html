@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% if messages %}
+    <div class="my-3">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Teacher Portal</h2>
+    <a href="{% url 'logout' %}" class="btn btn-red">
+        <i class="bi bi-box-arrow-right me-2"></i>Logout
+    </a>
+</div>
+
+<div class="card p-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h4 class="mb-3">Student List</h4>
+        <button class="btn btn-red" data-bs-toggle="modal" data-bs-target="#addModal"> <i class="bi bi-plus-circle me-1"></i> Add New Student</button>
+    </div>
+
+    <table id="studentsTable" class="table table-striped">
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>Subject</th>
+                <th>Marks</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.name }}</td>
+                <td>{{ student.subject }}</td>
+                <td>{{ student.marks }}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editModal{{ student.id }}"> <i class="bi bi-pencil-square me-1"></i>Edit</button>
+                    <a href="{% url 'delete_student' student.id %}" class="btn btn-sm btn-danger"> <i class="bi bi-trash-fill me-1"></i>Delete</a>
+                </td>
+            </tr>
+
+            <!-- Edit Modal -->
+            <div class="modal fade" id="editModal{{ student.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="post" action="{% url 'edit_student' student.id %}">
+                            {% csrf_token %}
+                            <div class="modal-header">
+                                <h5 class="modal-title">  <i class="bi bi-pencil-square me-2"></i>Edit Student</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label>Name</label>
+                                    <input name="name" class="form-control" value="{{ student.name }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label>Subject</label>
+                                    <input name="subject" class="form-control" value="{{ student.subject }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label>Marks</label>
+                                    <input name="marks" type="number" class="form-control" value="{{ student.marks }}" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-red">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'add_student' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Student</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Name</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Subject</label>
+                        <input type="text" name="subject" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Marks</label>
+                        <input type="number" name="marks" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-red">Add Student</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#studentsTable').DataTable({
+            "lengthMenu": [[5, 10, 20, -1], [5, 10, 20, "All"]],
+            "pageLength": 5
+        });
+    });
+</script>
+{% endblock %}
